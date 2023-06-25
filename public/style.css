@@ -1,0 +1,50 @@
+nav:nth-child(1) {
+  position: sticky;
+  top: 0;
+  background: var(--background-color);
+}
+
+nav:nth-child(1) > ul:nth-child(1) > li:nth-child(2) {
+  max-width: 48ch;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* shorten commit time, author and tag name*/
+#commits tr > th:nth-child(1),
+#commits tr > td:nth-child(1),
+#commits tr > th:nth-child(3),
+#commits tr > td:nth-child(3)
+#tags tr > th:nth-child(1),
+#tags tr > td:nth-child(1) {
+  max-width: 16ch;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* shorten commit message */
+#commits tr > th:nth-child(2),
+#commits tr > td:nth-child(2),
+#tags tr > th:nth-child(2),
+#tags tr > td:nth-child(2) {
+  max-width: 32ch;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  /* hide description */
+  nav:nth-child(1) > ul:nth-child(1) > li:nth-child(2) {
+    display: none;
+  }
+  /* hide commit time and author */
+  #commits tr > th:nth-child(1),
+  #commits tr > td:nth-child(1),
+  #commits tr > th:nth-child(3),
+  #commits tr > td:nth-child(3) {
+    display: none;
+  }
+}
