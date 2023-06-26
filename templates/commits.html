@@ -1,5 +1,6 @@
 {% include '_header.html' %} {% include '_nav.html' %}
 <section class="container-fluid">
+  {% if commits|length > 0 %}
   <figure style="margin-bottom: 0">
     <table id="commits" role="grid">
       <thead>
@@ -7,6 +8,8 @@
           <th>Commit time</th>
           <th>Commit message</th>
           <th>Author</th>
+          <th>Insertions</th>
+          <th>Deletions</th>
         </tr>
       </thead>
       <tbody>
@@ -23,10 +26,16 @@
               {{ e['commit_author_name'] }}
             </a>
           </td>
+          <td>+{{ e['commit_insertions'] }}</td>
+          <td>-{{ e['commit_deletions'] }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </figure>
+  <small>Showing <strong>the last 100</strong> entries.</small>
+  {% else %}
+  <section>This repository has no commits.</section>
+  {% endif %}
 </section>
 {% include '_footer.html' %}

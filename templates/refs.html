@@ -1,0 +1,61 @@
+{% include '_header.html' %} {% include '_nav.html' %}
+<section class="container-fluid">
+  {% if branches|length > 0 %}
+  <figure style="margin-bottom: 0">
+    <table class="refs" role="grid">
+      <thead>
+        <tr>
+          <th>Branch</th>
+          <th>Commit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in branches %}
+        <tr>
+          <td>{{ e['name'] }}</td>
+          <td>
+            <a href="/commit/{{ e['commit_id'] }}.html">
+              {{ e['commit_message'] }}
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </figure>
+  {% else %}
+  <section>This repository has no branches.</section>
+  {% endif %}
+  <br />
+  {% if tags|length > 0 %}
+  <figure style="margin-bottom: 0">
+    <table class="refs" role="grid">
+      <thead>
+        <tr>
+          <th>Tag</th>
+          <th>Commit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in tags %}
+        <tr>
+          <td>{{ e['name'] }}</td>
+          <td>
+            <a href="/commit/{{ e['commit_id'] }}.html">
+              {{ e['commit_message'] }}
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </figure>
+  {% else %}
+  <section>This repository has no tags.</section>
+  {% endif %}
+  <br />
+  {% if branches|length > 0 or tags|length > 0 %}
+  <small>Showing <strong>the last 100</strong> entries.</small>
+  {% endif %}
+</section>
+{% include '_footer.html' %}

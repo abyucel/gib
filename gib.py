@@ -32,8 +32,7 @@ def get_tags(repo: git.Repository):
             continue
         ref = repo.references[ref_name]
         target = repo.get(ref.target)
-        annotated = isinstance(target, git.Tag)
-        if annotated:  # annotated tag
+        if isinstance(target, git.Tag):  # annotated tag
             commit = repo.get(target.target)
         else:  # lightweight tag
             commit = target
@@ -41,20 +40,37 @@ def get_tags(repo: git.Repository):
     return tags
 
 
+def get_branches(repo: git.Repository):
+    branches = []
+    branches.append((repo.head, repo.get(repo.head.target)))
+    for branch_name in repo.branches.remote:
+        branch = repo.branches[branch_name]
+        if not isinstance(branch.target, git.Oid):
+            continue
+        commit = repo.get(branch.target)
+        branches.append((branch, commit))
+    return branches
+
+
 def generate_commits_html(template_env: Environment, metadata):
     commits = get_commits(repo)[:100]
     commits.sort(key=lambda commit: commit.commit_time)
     commits.reverse()
-    data = [
-        {
+    data = []
+    for commit in commits:
+        if len(commit.parents) > 0:
+            stats = commit.tree.diff_to_tree(commit.parents[0].tree).stats
+        else:
+            stats = commit.tree.diff_to_tree(swap=True).stats
+        data.append({
             "commit_author_name": commit.author.name,
             "commit_author_email": commit.author.email,
             "commit_time": format_time(commit.commit_time),
             "commit_id": commit.id,
             "commit_message": get_commit_message(commit),
-        }
-        for commit in commits
-    ]
+            "commit_insertions": stats.insertions,
+            "commit_deletions": stats.deletions,
+        })
     tpl = template_env.get_template("commits.html")
     render = tpl.render(
         title=f"Commits - {metadata['name']}",
@@ -65,25 +81,31 @@ def generate_commits_html(template_env: Environment, metadata):
         print(render, file=f)
 
 
-def generate_tags_html(template_env: Environment, metadata):
-    tags = get_tags(repo)[:100]
-    tags.sort(key=lambda x: x[1].commit_time)
-    tags.reverse()
-    data = [
-        {
-            "name": ref.shorthand,
-            "commit_id": commit.id,
-            "commit_message": get_commit_message(commit),
-        }
-        for ref, commit in tags
-    ]
-    tpl = template_env.get_template("tags.html")
+def generate_refs_html(template_env: Environment, metadata):
+    raw_data = [get_branches(repo)[:100], get_tags(repo)[:100]]
+    data = []
+    for i in range(len(raw_data)):
+        tmp = raw_data[i]
+        tmp.sort(key=lambda x: x[1].commit_time)
+        tmp.reverse()
+        data.append(
+            [
+                {
+                    "name": ref.shorthand.split("/")[-1] if i == 0 else ref.shorthand,
+                    "commit_id": commit.id,
+                    "commit_message": get_commit_message(commit),
+                }
+                for ref, commit in tmp
+            ]
+        )
+    tpl = template_env.get_template("refs.html")
     render = tpl.render(
-        title=f"Tags - {metadata['name']}",
+        title=f"Refs - {metadata['name']}",
         metadata=metadata,
-        tags=data,
+        branches=data[0],
+        tags=data[1],
     )
-    with open(os.path.join(args.outdir, "tags.html"), "w") as f:
+    with open(os.path.join(args.outdir, "refs.html"), "w") as f:
         print(render, file=f)
 
 
@@ -118,14 +140,16 @@ if __name__ == "__main__":
     )
 
     metadata = {
-        "name": os.path.basename(os.path.abspath(args.repodir)) if not args.name else args.name,
+        "name": os.path.basename(os.path.abspath(args.repodir))
+        if not args.name
+        else args.name,
         "description": "no description provided." if not args.desc else args.desc,
     }
 
     os.makedirs(args.outdir, exist_ok=True)
 
     generate_commits_html(template_env, metadata)
-    generate_tags_html(template_env, metadata)
+    generate_refs_html(template_env, metadata)
 
     if not os.path.exists(os.path.join(args.outdir, "index.html")):
         os.symlink(
