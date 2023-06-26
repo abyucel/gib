@@ -17,6 +17,10 @@ def get_commit_message(commit: git.Commit):
     return commit.message.split("\n")[0].strip()
 
 
+def get_branch_name(ref: git.Branch):
+    return "/".join(ref.shorthand.split("/")[1:])
+
+
 def get_commits(repo: git.Repository, oid: git.Oid = None):
     if oid != None:
         walker = repo.walk(oid, git.GIT_SORT_TOPOLOGICAL)
@@ -42,12 +46,14 @@ def get_tags(repo: git.Repository):
 
 def get_branches(repo: git.Repository):
     branches = []
-    branches.append((repo.head, repo.get(repo.head.target)))
-    for branch_name in repo.branches.remote:
-        branch = repo.branches[branch_name]
+    for branch_name in list(repo.branches.remote):
+        branch = repo.branches.remote[branch_name]
+        if not isinstance(branch, git.Branch):
+            continue
         if not isinstance(branch.target, git.Oid):
             continue
         commit = repo.get(branch.target)
+        print(branch.branch_name, type(branch))
         branches.append((branch, commit))
     return branches
 
@@ -62,15 +68,17 @@ def generate_commits_html(template_env: Environment, metadata):
             stats = commit.tree.diff_to_tree(commit.parents[0].tree).stats
         else:
             stats = commit.tree.diff_to_tree(swap=True).stats
-        data.append({
-            "commit_author_name": commit.author.name,
-            "commit_author_email": commit.author.email,
-            "commit_time": format_time(commit.commit_time),
-            "commit_id": commit.id,
-            "commit_message": get_commit_message(commit),
-            "commit_insertions": stats.insertions,
-            "commit_deletions": stats.deletions,
-        })
+        data.append(
+            {
+                "commit_author_name": commit.author.name,
+                "commit_author_email": commit.author.email,
+                "commit_time": format_time(commit.commit_time),
+                "commit_id": commit.id,
+                "commit_message": get_commit_message(commit),
+                "commit_insertions": stats.insertions,
+                "commit_deletions": stats.deletions,
+            }
+        )
     tpl = template_env.get_template("commits.html")
     render = tpl.render(
         title=f"Commits - {metadata['name']}",
@@ -91,7 +99,7 @@ def generate_refs_html(template_env: Environment, metadata):
         data.append(
             [
                 {
-                    "name": ref.shorthand.split("/")[-1] if i == 0 else ref.shorthand,
+                    "name": get_branch_name(ref) if i == 0 else ref.shorthand,
                     "commit_id": commit.id,
                     "commit_message": get_commit_message(commit),
                 }
