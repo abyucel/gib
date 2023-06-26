@@ -53,7 +53,6 @@ def get_branches(repo: git.Repository):
         if not isinstance(branch.target, git.Oid):
             continue
         commit = repo.get(branch.target)
-        print(branch.branch_name, type(branch))
         branches.append((branch, commit))
     return branches
 
