@@ -175,6 +175,7 @@ def generate_files_html(
     raw_data = [(k, v) for k, v in flatten(list_files(repo, tree)).items()]
     raw_data.sort(key=lambda x: x[0])
     data = []
+    tpl = template_env.get_template("file.html")
     for file_path, file in raw_data[:MAX_FILES]:
         file_mode = stat.filemode(file.filemode)[1:]
         mime = magic.from_buffer(file.data, mime=True)
@@ -185,18 +186,22 @@ def generate_files_html(
                 "viewable": is_mime_viewable(mime),
             }
         )
-        tpl = template_env.get_template("file.html")
-        render = tpl.render(
-            title=f"{file_path} - {metadata['name']}",
-            metadata=metadata,
-            file_mode=file_mode,
-            file_name=data,
-            content=file.data.decode("utf-8"),
-        )
-        out_path = os.path.join(args.outdir, "file", *f"{file_path}.html".split("/"))
-        os.makedirs(os.path.dirname(out_path), exist_ok=True)
-        with open(out_path, "w") as f:
-            print(render, file=f)
+        if is_mime_viewable(mime):
+            render = tpl.render(
+                title=f"{file_path} - {metadata['name']}",
+                metadata=metadata,
+                file_mode=file_mode,
+                file_path=file_path,
+                content=file.data.decode("utf-8"),
+            )
+            out_path = os.path.join(
+                args.outdir,
+                "file",
+                *f"{file_path}.html".split("/"),
+            )
+            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            with open(out_path, "w") as f:
+                print(render, file=f)
     tpl = template_env.get_template("files.html")
     render = tpl.render(
         title=f"Files - {metadata['name']}",
