@@ -2,20 +2,22 @@
 {% include '_header.html' %}
 <main class="container-fluid">
   <header>
-    <table class="table" role="grid">
-      <thead>
-        <tr>
-          <th>Mode</th>
-          <th>Path</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{ file_mode }}</td>
-          <td>{{ file_path }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <figure>
+      <table class="table" role="grid">
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>Path</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ file_mode }}</td>
+            <td>{{ file_path }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </figure>
   </header>
   {{ code(content) }}
 
