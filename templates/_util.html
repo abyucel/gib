@@ -1,3 +1,7 @@
 {% macro code(code) %}
 <pre><code>{{- code -}}</code></pre>
 {% endmacro %}
+
+{% macro diff(code) %}
+<pre><code class="language-diff">{{- code -}}</code></pre>
+{% endmacro %}

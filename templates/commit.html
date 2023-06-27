@@ -1,2 +1,35 @@
+{% from '_util.html' import diff %}
 {% include '_header.html' %}
+<main class="container-fluid">
+  <header>
+    <figure>
+      <table class="table" role="grid">
+        <thead>
+          <tr>
+            <th>Commit time</th>
+            <th>Commit message</th>
+            <th>Author</th>
+            <th>Insertions</th>
+            <th>Deletions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ commit_time }}</td>
+            <td>{{ commit_message }}</td>
+            <td>
+              <a href="mailto:{{ commit_author_email }}">
+                {{ commit_author_name }}
+              </a>
+            </td>
+            <td>+{{ commit_insertions }}</td>
+            <td>-{{ commit_deletions }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </figure>
+  </header>
+  {{ diff(content) }}
+
+</main>
 {% include '_footer.html' %}

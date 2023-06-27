@@ -99,19 +99,27 @@ def get_branches(repo: git.Repository):
     return branches
 
 
-def generate_commits_html(repo: git.Repository, template_env: Environment, metadata):
+def generate_commits_html(
+    repo: git.Repository,
+    template_env: Environment,
+    metadata,
+    outdir,
+):
     commits = get_commits(repo)
     commits.sort(key=lambda commit: commit.commit_time)
     commits.reverse()
     data = []
+    tpl = template_env.get_template("commit.html")
+    os.makedirs(os.path.join(outdir, "commit"), exist_ok=True)
     for i in range(len(commits)):
         commit = commits[i]
         parent = None
         if len(commit.parents) > 0:
             parent = commit.parents[0]
-            stats = commit.tree.diff_to_tree(parent.tree).stats
+            parent_diff = commit.tree.diff_to_tree(parent.tree)
         else:
-            stats = commit.tree.diff_to_tree(swap=True).stats
+            parent_diff = commit.tree.diff_to_tree(swap=True)
+        stats = parent_diff.stats
         if i < MAX_COMMITS:
             data.append(
                 {
@@ -124,6 +132,19 @@ def generate_commits_html(repo: git.Repository, template_env: Environment, metad
                     "commit_deletions": stats.deletions,
                 }
             )
+        render = tpl.render(
+            title=f"{commit.id} - {metadata['name']}",
+            metadata=metadata,
+            commit_author_name=commit.author.name,
+            commit_author_email=commit.author.email,
+            commit_time=format_time(commit.commit_time),
+            commit_message=get_commit_message(commit),
+            commit_insertions=stats.insertions,
+            commit_deletions=stats.deletions,
+            content=parent_diff.patch,
+        )
+        with open(os.path.join(outdir, "commit", f"{commit.id}.html"), "w") as f:
+            print(render, file=f)
 
     tpl = template_env.get_template("commits.html")
     render = tpl.render(
@@ -132,11 +153,16 @@ def generate_commits_html(repo: git.Repository, template_env: Environment, metad
         commits=data,
         n_commits=len(commits),
     )
-    with open(os.path.join(args.outdir, "commits.html"), "w") as f:
+    with open(os.path.join(outdir, "commits.html"), "w") as f:
         print(render, file=f)
 
 
-def generate_refs_html(repo: git.Repository, template_env: Environment, metadata):
+def generate_refs_html(
+    repo: git.Repository,
+    template_env: Environment,
+    metadata,
+    outdir,
+):
     raw_data = [get_branches(repo), get_tags(repo)]
     data = []
     for i in range(len(raw_data)):
@@ -162,7 +188,7 @@ def generate_refs_html(repo: git.Repository, template_env: Environment, metadata
         n_branches=len(data[0]),
         n_tags=len(data[1]),
     )
-    with open(os.path.join(args.outdir, "refs.html"), "w") as f:
+    with open(os.path.join(outdir, "refs.html"), "w") as f:
         print(render, file=f)
 
 
@@ -170,6 +196,7 @@ def generate_files_html(
     repo: git.Repository,
     template_env: Environment,
     metadata,
+    outdir,
     tree: git.Tree = None,
 ):
     raw_data = [(k, v) for k, v in flatten(list_files(repo, tree)).items()]
@@ -197,7 +224,7 @@ def generate_files_html(
                 content=file.data.decode("utf-8"),
             )
             out_path = os.path.join(
-                args.outdir,
+                outdir,
                 "file",
                 *f"{file_path}.html".split("/"),
             )
@@ -211,7 +238,7 @@ def generate_files_html(
         files=data,
         n_files=len(raw_data),
     )
-    with open(os.path.join(args.outdir, "files.html"), "w") as f:
+    with open(os.path.join(outdir, "files.html"), "w") as f:
         print(render, file=f)
 
 
@@ -254,9 +281,9 @@ if __name__ == "__main__":
 
     os.makedirs(args.outdir, exist_ok=True)
 
-    generate_commits_html(repo, template_env, metadata)
-    generate_refs_html(repo, template_env, metadata)
-    generate_files_html(repo, template_env, metadata)
+    generate_commits_html(repo, template_env, metadata, args.outdir)
+    generate_refs_html(repo, template_env, metadata, args.outdir)
+    generate_files_html(repo, template_env, metadata, args.outdir)
 
     if os.path.exists(os.path.join(args.outdir, "index.html")):
         os.remove(os.path.join(args.outdir, "index.html"))

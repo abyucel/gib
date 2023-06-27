@@ -22,7 +22,5 @@ python3 -m http.server -d ./out
 
 ## Missing features
 
-+ Commits (not joking)
-+ Files
 + Submodules
 + ...and more?
