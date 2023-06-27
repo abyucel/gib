@@ -116,7 +116,7 @@ def generate_commits_html(
         parent = None
         if len(commit.parents) > 0:
             parent = commit.parents[0]
-            parent_diff = commit.tree.diff_to_tree(parent.tree)
+            parent_diff = commit.tree.diff_to_tree(parent.tree, swap=True)
         else:
             parent_diff = commit.tree.diff_to_tree(swap=True)
         stats = parent_diff.stats
