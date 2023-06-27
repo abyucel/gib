@@ -14,7 +14,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 MAX_COMMITS = 100
 MAX_REFS = 100
-MAX_FILES = 1000
+MAX_FILES = 100
 
 
 def is_mime_viewable(mime):
@@ -176,16 +176,18 @@ def generate_files_html(
     raw_data.sort(key=lambda x: x[0])
     data = []
     tpl = template_env.get_template("file.html")
-    for file_path, file in raw_data[:MAX_FILES]:
+    for i in range(len(raw_data)):
+        file_path, file = raw_data[i]
         file_mode = stat.filemode(file.filemode)[1:]
         mime = magic.from_buffer(file.data, mime=True)
-        data.append(
-            {
-                "mode": file_mode,
-                "path": file_path,
-                "viewable": is_mime_viewable(mime),
-            }
-        )
+        if i < MAX_FILES:
+            data.append(
+                {
+                    "mode": file_mode,
+                    "path": file_path,
+                    "viewable": is_mime_viewable(mime),
+                }
+            )
         if is_mime_viewable(mime):
             render = tpl.render(
                 title=f"{file_path} - {metadata['name']}",
