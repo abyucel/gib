@@ -24,3 +24,8 @@ python3 -m http.server -d ./out
 
 + Submodules
 + ...and more?
+
+## Screenshots
+
+![Screenshot 1](screenshots/01.png)
+![Screenshot 2](screenshots/02.png)
