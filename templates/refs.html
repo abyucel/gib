@@ -1,8 +1,8 @@
-{% include '_header.html' %} {% include '_nav.html' %}
+{% include '_header.html' %}
 <section class="container-fluid">
   {% if branches|length > 0 %}
-  <figure style="margin-bottom: 0">
-    <table class="refs" role="grid">
+  <figure>
+    <table class="table" role="grid">
       <thead>
         <tr>
           <th>Branch</th>
@@ -24,11 +24,11 @@
     </table>
   </figure>
   {% else %}
-  <section>This repository has no branches.</section>
+  <article>This repository has no branches.</article>
   {% endif %}
   <br />
   {% if tags|length > 0 %}
-  <figure style="margin-bottom: 0">
+  <figure>
     <table class="refs" role="grid">
       <thead>
         <tr>
@@ -51,11 +51,14 @@
     </table>
   </figure>
   {% else %}
-  <section>This repository has no tags.</section>
+  <article>This repository has no tags.</article>
   {% endif %}
   <br />
   {% if branches|length > 0 or tags|length > 0 %}
-  <small>Showing <strong>the last 100</strong> entries.</small>
+  <small>
+    Showing <strong>{{ branches|length }} of {{ n_branches }} branch(es)</strong>
+    and <strong>{{ tags|length }} of {{ n_tags }} tag(s)</strong>.
+  </small>
   {% endif %}
 </section>
 {% include '_footer.html' %}

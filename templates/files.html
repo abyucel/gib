@@ -1,0 +1,35 @@
+{% include '_header.html' %}
+<section class="container-fluid">
+  {% if files|length > 0 %}
+  <figure>
+    <table class="table" role="grid">
+      <thead>
+        <tr>
+          <th>Mode</th>
+          <th>Path</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in files %}
+        <tr>
+          <td>{{ e['mode'] }}</td>
+          <td>
+            {% if e['viewable'] %}
+            <a href="/file/{{ e['path'] }}.html">
+              {{ e['path'] }}
+            </a>
+            {% else %}
+            {{ e['path'] }}
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </figure>
+  <small>Showing <strong>{{ files|length }} of {{ n_files }} file(s)</strong>.</small>
+  {% else %}
+  <article>This repository has no files.</article>
+  {% endif %}
+</section>
+{% include '_footer.html' %}

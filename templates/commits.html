@@ -1,8 +1,8 @@
-{% include '_header.html' %} {% include '_nav.html' %}
+{% include '_header.html' %}
 <section class="container-fluid">
   {% if commits|length > 0 %}
-  <figure style="margin-bottom: 0">
-    <table id="commits" role="grid">
+  <figure>
+    <table class="table" role="grid">
       <thead>
         <tr>
           <th>Commit time</th>
@@ -33,9 +33,9 @@
       </tbody>
     </table>
   </figure>
-  <small>Showing <strong>the last 100</strong> entries.</small>
+  <small>Showing <strong>{{ commits|length }} of {{ n_commits }} commit(s)</strong>.</small>
   {% else %}
-  <section>This repository has no commits.</section>
+  <article>This repository has no commits.</article>
   {% endif %}
 </section>
 {% include '_footer.html' %}

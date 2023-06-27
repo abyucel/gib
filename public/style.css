@@ -1,21 +1,28 @@
-nav:nth-child(1) {
+body {
+  padding-bottom: 8ch;
+}
+
+/* scrollable navbar :O */
+nav {
+  white-space: nowrap;
+  overflow: scroll;
+}
+
+nav:first-child {
   position: sticky;
   top: 0;
-  background: var(--background-color);
+  background-color: var(--card-background-color);
 }
 
-nav:nth-child(1) > ul:nth-child(1) > li:nth-child(2) {
-  max-width: 48ch;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+nav:last-child {
+  position: fixed;
+  bottom: 0;
+  background-color: var(--card-background-color);
 }
 
-/* shorten commit time, author and tag name*/
-#commits tr > th,
-#commits tr > td,
-.refs tr > th,
-.refs tr > td {
+.table tr > th,
+.table tr > td {
+  max-width: fit-content;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -23,7 +30,9 @@ nav:nth-child(1) > ul:nth-child(1) > li:nth-child(2) {
 
 @media (max-width: 768px) {
   /* hide description */
-  nav:nth-child(1) > ul:nth-child(1) > li:nth-child(2) {
+  /*
+  nav:first-child > ul:nth-child(1) > li:nth-child(2) {
     display: none;
   }
+  */
 }
