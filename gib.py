@@ -113,7 +113,12 @@ def generate_commits_html(
     os.makedirs(os.path.join(outdir, "commit"), exist_ok=True)
     for i in range(len(commits)):
         commit = commits[i]
+        next_commit_id = None
+        next_commit_message = None
         parent = None
+        if i > 0:
+            next_commit_id = commits[i - 1].id
+            next_commit_message = get_commit_message(commits[i - 1])
         if len(commit.parents) > 0:
             parent = commit.parents[0]
             parent_diff = commit.tree.diff_to_tree(parent.tree, swap=True)
@@ -141,6 +146,10 @@ def generate_commits_html(
             commit_message=get_commit_message(commit),
             commit_insertions=stats.insertions,
             commit_deletions=stats.deletions,
+            parent_commit_id=parent.id if parent else None,
+            parent_commit_message=get_commit_message(parent) if parent else None,
+            next_commit_id=next_commit_id,
+            next_commit_message=next_commit_message,
             content=parent_diff.patch,
         )
         with open(os.path.join(outdir, "commit", f"{commit.id}.html"), "w") as f:

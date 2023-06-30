@@ -3,6 +3,38 @@
 <main class="container-fluid">
   <header>
     <figure>
+      <table class="table" role="grid" style="margin-bottom: 0;">
+        <thead>
+          <tr>
+            <th>Previous commit</th>
+            <th>Next commit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              {% if parent_commit_id %}
+              <a href="/commit/{{ parent_commit_id }}.html">
+                {{ parent_commit_message }}
+              </a>
+              {% else %}
+              This commit doesn't have a parent.
+              {% endif %}
+            </td>
+            <td>
+              {% if next_commit_id %}
+              <a href="/commit/{{ next_commit_id }}.html">
+                {{ next_commit_message }}
+              </a>
+              {% else %}
+              This commit is the latest commit.
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </figure>
+    <figure>
       <table class="table" role="grid">
         <thead>
           <tr>
